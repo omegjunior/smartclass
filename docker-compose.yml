@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_DB: smartclass
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 20PostgreS17
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  springbootapp:
+    image: openjdk:17-jdk-slim
+    container_name: springboot_app
+    restart: always
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/smartclass
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 20PostgreS17
+      SERVER_PORT: 8443
+      SERVER_SSL_KEY_STORE: /etc/ssl/server.p12
+      SERVER_SSL_KEY_STORE_PASSWORD: password
+      SERVER_SSL_KEY_STORE_TYPE: PKCS12
+      SERVER_SSL_KEY_ALIAS: tomcat
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+    volumes:
+      - ./app:/app
+      - ./ssl:/etc/ssl # Montage du répertoire contenant le keystore
+    command: ["java", "-jar", "/app/smartclass-1.0.jar"]
+
+volumes:
+  postgres_data:
